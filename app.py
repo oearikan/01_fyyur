@@ -16,17 +16,23 @@ from flask_migrate import Migrate
 from datetime import datetime
 from mylog import mylog
 import sys
+from models import db, Venue, Artist, Show
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
 
 app = Flask(__name__)
 moment = Moment(app)
-app.config.from_object('config')
 db = SQLAlchemy(app)
+app.config.from_object('config')
+# db.init_app(app)
 migrate = Migrate(app,db)
 
 # TODO: connect to a local postgresql database
+
+# from flask_sqlalchemy import SQLAlchemy
+#
+# db = SQLAlchemy()
 
 #----------------------------------------------------------------------------#
 # Models.
@@ -87,6 +93,8 @@ class Show(db.Model):
     def __repr__(self):
         return f'<S: {self.artist_id} {self.venue_id} {self.start_time}>'
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+
+
 
 #----------------------------------------------------------------------------#
 # Filters.
@@ -179,57 +187,50 @@ def search_venues():
 def show_venue(venue_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
-  venue = Venue.query.filter_by(id=venue_id).first()
+  venue = db.session.query(Venue,Show,Artist).select_from(Venue).join(Show).join(Artist).filter(Venue.id==venue_id).all()
   now = datetime.now()
-  past_shows = Show.query.filter(Show.venue_id==venue_id, Show.start_time < now).all()
-  upcoming_shows = Show.query.filter(Show.venue_id==venue_id, Show.start_time > now).all()
 
   # organize genres into an array. For some reason form returns it in a weird way, all characters seperated by a comma
-  t = ''.join(venue.genres)
+  t = ''.join(venue[0][0].genres)
   genres = t[1:-1].replace('"','').split(',')
-  # mylog(venue.genres)
+
+  past_count = 0
+  upcoming_count = 0
+  info_past = []
+  info_upcoming = []
+
+  for show in venue:
+      info = {
+        'artist_id': show[2].id,
+        'artist_name': show[2].name,
+        'artist_image_link': show[2].image_link,
+        'start_time': show[1].start_time.strftime("%m-%d-%Y %H:%M:%S")
+      }
+      if show[1].start_time > datetime.now():
+          upcoming_count = upcoming_count + 1
+          info_upcoming.append(info)
+      else:
+          past_count = past_count + 1
+          info_past.append(info)
   data = {
-    'id': venue.id,
-    'name': venue.name,
+    'id': venue[0][0].id,
+    'name': venue[0][0].name,
     'genres': genres,
-    'address': venue.address,
-    'city': venue.city,
-    'state': venue.state,
-    'phone': venue.phone,
-    'website': venue.website_link,
-    'facebook_link': venue.facebook_link,
-    'seeking_talent': venue.seeking_talent,
-    'seeking_description': venue.seeking_description,
-    'image_link': venue.image_link,
-    'past_shows_count': len(past_shows),
-    'upcoming_shows_count': len(upcoming_shows)
+    'address': venue[0][0].address,
+    'city': venue[0][0].city,
+    'state': venue[0][0].state,
+    'phone': venue[0][0].phone,
+    'website': venue[0][0].website_link,
+    'facebook_link': venue[0][0].facebook_link,
+    'seeking_talent': venue[0][0].seeking_talent,
+    'seeking_description': venue[0][0].seeking_description,
+    'image_link': venue[0][0].image_link,
+    'past_shows_count': past_count,
+    'upcoming_shows_count': upcoming_count,
+    'past_shows': info_past,
+    'upcoming_shows': info_upcoming
   }
 
-  past = []
-  upcoming = []
-  for show in past_shows:
-      artist = Artist.query.filter_by(id=show.artist_id).first()
-      info = {
-        'artist_id': artist.id,
-        'artist_name': artist.name,
-        'artist_image_link': artist.image_link,
-        'start_time': show.start_time.strftime("%m-%d-%Y %H:%M:%S")
-      }
-      past.append(info)
-  data["past_shows"] = past
-
-  for show in upcoming_shows:
-      artist = Artist.query.filter_by(id=show.artist_id).first()
-      info = {
-        'artist_id': artist.id,
-        'artist_name': artist.name,
-        'artist_image_link': artist.image_link,
-        'start_time': show.start_time.strftime("%m-%d-%Y %H:%M:%S")
-      }
-      upcoming.append(info)
-  data["upcoming_shows"] = upcoming
-  # mylog(data)
-  # data = list(filter(lambda d: d['id'] == venue_id, [data1, data2, data3]))[0]
   return render_template('pages/show_venue.html', venue=data)
 
 #  Create Venue
