@@ -1,1 +1,12 @@
-var = (<V: 3, Park Square Live Music & Coffee, San Francisco, CA>, <S: 5 3 2019-06-15 23:00:00>, <A: 5 Matt Quevedo>)
+var = <A: 2 Mustafa Sandal>
+var = []
+var = <A: 3 Tarkan>
+var = [(<S: 3 2 2035-10-24 21:00:00>, <V: 2, The Dueling Pianos Bar, New York, NY>)]
+var = <A: 4 Guns N Petals>
+var = [(<S: 4 1 2019-05-21 21:30:00>, <V: 1, The Musical Hop, San Francisco, CA>), (<S: 4 1 2035-10-23 18:39:10>, <V: 1, The Musical Hop, San Francisco, CA>)]
+var = <A: 5 Matt Quevedo>
+var = [(<S: 5 3 2019-06-15 23:00:00>, <V: 3, Park Square Live Music & Coffee, San Francisco, CA>)]
+var = <A: 6 The Wild Sax Band>
+var = [(<S: 6 3 2035-04-15 20:00:00>, <V: 3, Park Square Live Music & Coffee, San Francisco, CA>), (<S: 6 3 2035-04-08 20:00:00>, <V: 3, Park Square Live Music & Coffee, San Francisco, CA>), (<S: 6 3 2035-04-01 20:00:00>, <V: 3, Park Square Live Music & Coffee, San Francisco, CA>)]
+var = <A: 7 Goksel>
+var = [(<S: 7 2 2035-10-24 18:05:32>, <V: 2, The Dueling Pianos Bar, New York, NY>)]
